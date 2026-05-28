@@ -36,6 +36,7 @@ class OrientationController
   ###
   orientationChange: (event) ->
     return if not @active
+    return if not event.beta? or not event.alpha? or not event.gamma?
     if(@dalpha == null)
       console.log "calbrate", event.beta 
       @dalpha = event.alpha

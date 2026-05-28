@@ -183,6 +183,17 @@ html, body {
   background-size: 60% auto;
 }
 
+#step-2 .gyro-help {
+  font-family: 'BebasNeueRegular', arial, sans-serif;
+  text-transform: uppercase;
+  color: #4190bb;
+  text-shadow: 0 0 10px rgb(255,255,255);
+  text-align: center;
+  font-size: 2em;
+  line-height: 1.2em;
+  padding-top: 30vh;
+}
+
 #step-3 {
   position: absolute;
   top: 0;

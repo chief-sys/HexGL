@@ -1,0 +1,6 @@
+- generic [ref=e4]:
+  - generic [ref=e5] [cursor=pointer]: Start
+  - generic [ref=e6] [cursor=pointer]: "Controls: KEYBOARD"
+  - generic [ref=e7] [cursor=pointer]: "Quality: VERY HIGH"
+  - generic [ref=e8] [cursor=pointer]: "HUD: ON"
+  - generic [ref=e9] [cursor=pointer]: Credits

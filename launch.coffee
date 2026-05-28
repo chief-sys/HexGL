@@ -34,15 +34,25 @@ init = (controlType, quality, hud, godmode) ->
 
 u = bkcore.Utils.getURLParameter
 
-defaultControls = if bkcore.Utils.isTouchDevice() then 1 else 0
+isMobile = bkcore.Utils.isTouchDevice()
+
+# On mobile the cycler shows [TOUCH, GYROSCOPE]; this maps the cycler
+# index back to the canonical controlType ShipControls understands
+# (1 = TouchController, 4 = OrientationController).
+MOBILE_CONTROL_TYPE = [1, 4]
 
 s = [
-  ['controlType', ['KEYBOARD', 'TOUCH', 'LEAP MOTION CONTROLLER',
-    'GAMEPAD'], defaultControls, defaultControls, 'Controls: ']
+  if isMobile
+    ['controlType', ['TOUCH', 'GYROSCOPE'], 0, 0, 'Controls: ']
+  else
+    ['controlType', ['KEYBOARD', 'TOUCH', 'LEAP MOTION CONTROLLER',
+      'GAMEPAD'], 0, 0, 'Controls: ']
   ['quality', ['LOW', 'MID', 'HIGH', 'VERY HIGH'], 3, 3, 'Quality: ']
   ['hud', ['OFF', 'ON'], 1, 1, 'HUD: ']
   ['godmode', ['OFF', 'ON'], 0, 1, 'Godmode: ']
 ]
+
+canonicalControlType = -> if isMobile then MOBILE_CONTROL_TYPE[s[0][3]] else s[0][3]
 
 for a in s
   do(a)->
@@ -50,10 +60,25 @@ for a in s
     e = $ "s-#{a[0]}"
     (f = -> e.innerHTML = a[4]+a[1][a[3]])()
     e.onclick = -> f(a[3] = (a[3]+1)%a[1].length)
-$('step-2').onclick = ->
+proceedToLoad = ->
   $('step-2').style.display = 'none'
   $('step-3').style.display = 'block'
-  init s[0][3], s[1][3], s[2][3], s[3][3]
+  init canonicalControlType(), s[1][3], s[2][3], s[3][3]
+
+$('step-2').onclick = ->
+  ct = canonicalControlType()
+  if isMobile and ct is 4 and
+      typeof DeviceOrientationEvent isnt 'undefined' and
+      typeof DeviceOrientationEvent.requestPermission is 'function'
+    DeviceOrientationEvent.requestPermission()
+      .then (state) ->
+        s[0][3] = 0 if state isnt 'granted' # fall back to TOUCH
+        proceedToLoad()
+      .catch ->
+        s[0][3] = 0
+        proceedToLoad()
+    return
+  proceedToLoad()
 $('step-5').onclick = ->
   window.location.reload()
 $('s-credits').onclick = ->
@@ -73,6 +98,33 @@ hasWebGL = ->
       gl = canvas.getContext("experimental-webgl")
   return gl?
 
+requestMobileFullscreen = ->
+  el = document.documentElement
+  req = el.requestFullscreen ? el.webkitRequestFullscreen ? el.mozRequestFullScreen ? el.msRequestFullscreen
+  if req?
+    try
+      p = req.call(el)
+      p.catch(->) if p?.catch?
+    catch e
+      # ignore
+  if window.screen?.orientation?.lock?
+    try screen.orientation.lock('landscape').catch(->) catch e then # ignore
+
+paintStep2Help = ->
+  step2 = $('step-2')
+  existing = $('gyro-help-msg')
+  existing.parentNode.removeChild(existing) if existing?.parentNode
+  ct = canonicalControlType()
+  if ct is 4
+    step2.style.backgroundImage = 'none'
+    msg = document.createElement 'div'
+    msg.id = 'gyro-help-msg'
+    msg.className = 'gyro-help'
+    msg.innerHTML = 'TILT YOUR PHONE TO STEER<br>HOLD TO ACCELERATE<br><br>TAP TO START'
+    step2.appendChild msg
+  else
+    step2.style.backgroundImage = "url(css/help-#{ct}.png)"
+
 if not hasWebGL()
   getWebGL = $('start')
   getWebGL.innerHTML = 'WebGL is not supported!'
@@ -80,6 +132,7 @@ if not hasWebGL()
     window.location.href = 'http://get.webgl.org/'
 else
   $('start').onclick = ->
+    requestMobileFullscreen() if isMobile
     $('step-1').style.display = 'none'
     $('step-2').style.display = 'block'
-    $('step-2').style.backgroundImage = "url(css/help-#{s[0][3]}.png)"
+    paintStep2Help()

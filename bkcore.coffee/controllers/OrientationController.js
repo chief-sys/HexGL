@@ -61,6 +61,9 @@
       if (!this.active) {
         return;
       }
+      if (event.beta == null || event.alpha == null || event.gamma == null) {
+        return;
+      }
       if (this.dalpha === null) {
         console.log("calbrate", event.beta);
         this.dalpha = event.alpha;
