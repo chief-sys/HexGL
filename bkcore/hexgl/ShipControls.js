@@ -395,8 +395,27 @@ bkcore.hexgl.ShipControls.prototype.update = function(dt)
 		}
 		else if(this.orientationController != null)
 		{
-			angularAmount += this.orientationController.beta/45 * this.angularSpeed * dt;
-			rollAmount -= this.orientationController.beta/45 * this.rollAngle;
+			// Pick the device axis that maps to the user-relative "tilt
+			// left/right" motion based on the current screen orientation.
+			// Use calibrated delta-from-neutral, not raw — natural landscape
+			// grip already has significant absolute tilt; without calibration
+			// the steering would be stuck at full lock.
+			var oc = this.orientationController;
+			var angle = (window.screen && window.screen.orientation && window.screen.orientation.angle);
+			if (angle == null) angle = (window.orientation != null) ? window.orientation : 0;
+			var tilt;
+			switch (angle) {
+				case 90:           tilt = -oc.beta;  break; // landscape (rotated CW)
+				case -90: case 270: tilt =  oc.beta;  break; // landscape (rotated CCW)
+				case 180:          tilt = -oc.gamma; break; // upside-down portrait
+				default:           tilt =  oc.gamma; break; // portrait (0)
+			}
+			// 4° dead zone, clamp at ±30° for full lock.
+			if (tilt > -4 && tilt < 4) tilt = 0;
+			else if (tilt > 30) tilt = 30;
+			else if (tilt < -30) tilt = -30;
+			angularAmount -= tilt/30 * this.angularSpeed * dt;
+			rollAmount += tilt/30 * this.rollAngle;
 		}
 		else if(this.gamepadController != null && this.gamepadController.updateAvailable())
 		{

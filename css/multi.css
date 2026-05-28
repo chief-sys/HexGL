@@ -183,6 +183,26 @@ html, body {
   background-size: 60% auto;
 }
 
+#rotate-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000000;
+  background: black;
+  align-items: center;
+  justify-content: center;
+  font-family: 'BebasNeueRegular', arial, sans-serif;
+  text-transform: uppercase;
+  color: #4190bb;
+  text-shadow: 0 0 10px rgb(255,255,255);
+  text-align: center;
+  font-size: 2.4em;
+  line-height: 1.2em;
+}
+
 #step-2 .gyro-help {
   font-family: 'BebasNeueRegular', arial, sans-serif;
   text-transform: uppercase;

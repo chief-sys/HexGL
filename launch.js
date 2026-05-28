@@ -30,6 +30,12 @@
         hexGL.init();
         $('step-3').style.display = 'none';
         $('step-4').style.display = 'block';
+        // Re-zero the gyroscope to the user's current hold position the
+        // moment gameplay actually starts.
+        if (hexGL.components && hexGL.components.shipControls &&
+            hexGL.components.shipControls.orientationController) {
+          hexGL.components.shipControls.orientationController.recalibrate();
+        }
         return hexGL.start();
       },
       onError: function(s) {
@@ -134,6 +140,44 @@
     return gl != null;
   };
 
+  function setupRotateOverlay() {
+    if (!isMobile) return;
+    var overlay = $('rotate-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'rotate-overlay';
+      overlay.innerHTML = 'ROTATE YOUR PHONE<br>TO LANDSCAPE';
+      document.body.appendChild(overlay);
+    }
+    function inPlayingPhase() {
+      var ids = ['step-2', 'step-3', 'step-4'];
+      for (var i = 0; i < ids.length; i++) {
+        var el = $(ids[i]);
+        if (el && el.style.display && el.style.display !== 'none') return true;
+      }
+      return false;
+    }
+    function update() {
+      var portrait = window.innerHeight > window.innerWidth;
+      var wasShown = overlay.style.display === 'flex';
+      if (portrait && inPlayingPhase()) {
+        overlay.style.display = 'flex';
+      } else {
+        overlay.style.display = 'none';
+        // User just rotated into landscape — make this orientation the
+        // gyro neutral so steering starts from zero.
+        if (wasShown && window.hexGL && window.hexGL.components &&
+            window.hexGL.components.shipControls &&
+            window.hexGL.components.shipControls.orientationController) {
+          window.hexGL.components.shipControls.orientationController.recalibrate();
+        }
+      }
+    }
+    window.addEventListener('resize', update);
+    window.addEventListener('orientationchange', update);
+    update();
+  }
+
   function requestMobileFullscreen() {
     var el = document.documentElement;
     var req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
@@ -173,7 +217,10 @@
     };
   } else {
     $('start').onclick = function() {
-      if (isMobile) requestMobileFullscreen();
+      if (isMobile) {
+        requestMobileFullscreen();
+        setupRotateOverlay();
+      }
       $('step-1').style.display = 'none';
       $('step-2').style.display = 'block';
       return paintStep2Help();

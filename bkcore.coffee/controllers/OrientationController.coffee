@@ -21,6 +21,9 @@ class OrientationController
     @alpha = 0.0
     @beta = 0.0
     @gamma  = 0.0
+    @rawAlpha = 0.0
+    @rawBeta = 0.0
+    @rawGamma = 0.0
     @dalpha = null
     @dbeta = null
     @dgamma = null
@@ -37,8 +40,10 @@ class OrientationController
   orientationChange: (event) ->
     return if not @active
     return if not event.beta? or not event.alpha? or not event.gamma?
+    @rawAlpha = event.alpha
+    @rawBeta = event.beta
+    @rawGamma = event.gamma
     if(@dalpha == null)
-      console.log "calbrate", event.beta 
       @dalpha = event.alpha
       @dbeta = event.beta
       @dgamma = event.gamma
@@ -46,6 +51,14 @@ class OrientationController
     @beta = event.beta - @dbeta
     @gamma = event.gamma - @dgamma
     false
+
+  recalibrate: ->
+    @dalpha = @rawAlpha
+    @dbeta = @rawBeta
+    @dgamma = @rawGamma
+    @alpha = 0.0
+    @beta = 0.0
+    @gamma = 0.0
 
   ###
     @private

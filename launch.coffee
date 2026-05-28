@@ -24,6 +24,8 @@ init = (controlType, quality, hud, godmode) ->
       hexGL.init()
       $('step-3').style.display = 'none'
       $('step-4').style.display = 'block'
+      # Re-zero the gyroscope to the user's current hold position.
+      hexGL.components?.shipControls?.orientationController?.recalibrate?()
       hexGL.start()
     onError: (s) ->
       console.error "Error loading #{ s }."
@@ -98,6 +100,33 @@ hasWebGL = ->
       gl = canvas.getContext("experimental-webgl")
   return gl?
 
+setupRotateOverlay = ->
+  return if not isMobile
+  overlay = $('rotate-overlay')
+  unless overlay?
+    overlay = document.createElement 'div'
+    overlay.id = 'rotate-overlay'
+    overlay.innerHTML = 'ROTATE YOUR PHONE<br>TO LANDSCAPE'
+    document.body.appendChild overlay
+  inPlayingPhase = ->
+    for id in ['step-2', 'step-3', 'step-4']
+      el = $(id)
+      return true if el? and el.style.display and el.style.display isnt 'none'
+    false
+  update = ->
+    portrait = window.innerHeight > window.innerWidth
+    wasShown = overlay.style.display is 'flex'
+    if portrait and inPlayingPhase()
+      overlay.style.display = 'flex'
+    else
+      overlay.style.display = 'none'
+      # Rotated into landscape — make this orientation the new gyro neutral.
+      if wasShown
+        window.hexGL?.components?.shipControls?.orientationController?.recalibrate?()
+  window.addEventListener 'resize', update
+  window.addEventListener 'orientationchange', update
+  update()
+
 requestMobileFullscreen = ->
   el = document.documentElement
   req = el.requestFullscreen ? el.webkitRequestFullscreen ? el.mozRequestFullScreen ? el.msRequestFullscreen
@@ -132,7 +161,9 @@ if not hasWebGL()
     window.location.href = 'http://get.webgl.org/'
 else
   $('start').onclick = ->
-    requestMobileFullscreen() if isMobile
+    if isMobile
+      requestMobileFullscreen()
+      setupRotateOverlay()
     $('step-1').style.display = 'none'
     $('step-2').style.display = 'block'
     paintStep2Help()

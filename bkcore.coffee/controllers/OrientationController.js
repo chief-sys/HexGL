@@ -35,6 +35,9 @@
       this.alpha = 0.0;
       this.beta = 0.0;
       this.gamma = 0.0;
+      this.rawAlpha = 0.0;
+      this.rawBeta = 0.0;
+      this.rawGamma = 0.0;
       this.dalpha = null;
       this.dbeta = null;
       this.dgamma = null;
@@ -64,8 +67,10 @@
       if (event.beta == null || event.alpha == null || event.gamma == null) {
         return;
       }
+      this.rawAlpha = event.alpha;
+      this.rawBeta = event.beta;
+      this.rawGamma = event.gamma;
       if (this.dalpha === null) {
-        console.log("calbrate", event.beta);
         this.dalpha = event.alpha;
         this.dbeta = event.beta;
         this.dgamma = event.gamma;
@@ -74,6 +79,15 @@
       this.beta = event.beta - this.dbeta;
       this.gamma = event.gamma - this.dgamma;
       return false;
+    };
+
+    OrientationController.prototype.recalibrate = function() {
+      this.dalpha = this.rawAlpha;
+      this.dbeta = this.rawBeta;
+      this.dgamma = this.rawGamma;
+      this.alpha = 0.0;
+      this.beta = 0.0;
+      this.gamma = 0.0;
     };
 
     /*
