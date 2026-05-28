@@ -266,9 +266,9 @@ bkcore.hexgl.HexGL.prototype.displayScore = function(f, l)
 	st != undefined && (st.href='http://twitter.com/share?text='+encodeURIComponent('I just scored '+dt.innerHTML+' in '+'Cityscape ('+d+') on #HexGL! Come try it and beat my record on '));
 	sf != undefined && (sf.href='http://www.facebook.com/sharer.php?s=100'
 		+'&p[title]='+encodeURIComponent('I just scored '+dt.innerHTML+' in '+'Cityscape ('+d+') on HexGL!')
-		+'&p[summary]='+encodeURIComponent('HexGL is a futuristic racing game built by Thibaut Despoulain (BKcore) using HTML5, Javascript and WebGL. Come challenge your friends on this fast-paced 3D game!')
-		+'&p[url]='+encodeURIComponent('http://hexgl.bkcore.com')
-		+'&p[images][0]='+encodeURIComponent('http://hexgl.bkcore.com/image.png'));
+		+'&p[summary]='+encodeURIComponent('HexGL is a futuristic HTML5 / WebGL racing game.')
+		+'&p[url]='+encodeURIComponent('https://hexgl.blockchanger.io')
+		+'&p[images][0]='+encodeURIComponent('https://hexgl.blockchanger.io/favicon.png'));
 
 	bkcore.hexgl.Ladder.displayLadder('finish-ladder', t, d, 8);
 

@@ -83,13 +83,6 @@ $('step-2').onclick = ->
   proceedToLoad()
 $('step-5').onclick = ->
   window.location.reload()
-$('s-credits').onclick = ->
-  $('step-1').style.display = 'none'
-  $('credits').style.display = 'block'
-$('credits').onclick = ->
-  $('step-1').style.display = 'block'
-  $('credits').style.display = 'none'
-
 hasWebGL = ->
   gl = null
   canvas = document.createElement('canvas');
